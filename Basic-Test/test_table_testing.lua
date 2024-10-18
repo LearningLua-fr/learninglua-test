@@ -1,64 +1,60 @@
-function run_test(test_name, user_code, user_output, expected_output)
-    if user_output == expected_output then
-        print(test_name .. ": Test Passed!")
-    else
-        print(test_name .. ": Test Failed!")
-        print("User Code: \n" .. user_code)
-        print("Expected Output: " .. expected_output)
-        print("User Output: " .. user_output)
-    end
-end
-
--- Simule l'exécution du code utilisateur et retourne un résultat fictif pour les tests
+-- Fonction pour exécuter le code utilisateur sans montrer de détails
 function execute_user_code(user_code)
-    -- Cette fonction devrait exécuter réellement le code Lua
-    -- Pour l'exemple, nous retournons un résultat attendu simulé
-    return [[
-Name: Max
-Age: 25
-Job: Developer
-Name: Jenna
-Age: 30
-Job: Designer
-]]
+    local func, err = load(user_code)
+    if func then
+        return pcall(func)
+    else
+        return false, err
+    end
 end
 
--- Code soumis par l'utilisateur (exemple)
-local user_code = [[
-    local person = {
-        {name = "Max", age = 25, job = "Developer"},
-        {name = "Jenna", age = 30, job = "Designer"}
-    }
-
-    for i = 1, #person do
-        print("Name: " .. person[i].name)
-        print("Age: " .. person[i].age)
-        print("Job: " .. person[i].job)
+-- Fonction de test avec vérification de la table sans afficher les détails
+function run_test(step_description, user_code, validation_function)
+    local success, _ = execute_user_code(user_code)
+    if success and validation_function() then
+        print(step_description .. " : Test Passed!")
+    else
+        print(step_description .. " : Test Failed!")
     end
-]]
+end
 
--- Résultat attendu
-local expected_output = [[
-Name: Max
-Age: 25
-Job: Developer
-Name: Jenna
-Age: 30
-Job: Designer
-]]
+-- Tests de validation des données dans la table sans exposer la structure
 
--- Simuler l'exécution du code utilisateur
-local user_output = execute_user_code(user_code)
+-- Test 1 : Vérification de la présence de 2 éléments dans la table
+function check_table_length()
+    return #people == 2
+end
 
--- Effectuer plusieurs tests
+run_test("Step 1: Vérification du nombre d'éléments", user_code, check_table_length)
 
--- Test 1 : Vérifier si la première partie (Max) est correctement imprimée
-local partial_output_test1 = "Name: Max\nAge: 25\nJob: Developer\n"
-run_test("Test 1", user_code, user_output:sub(1, #partial_output_test1), partial_output_test1)
+-- Test 2 : Vérification des valeurs du premier élément (nom, âge, travail)
+function check_first_person_values()
+    local first_person = people[1]
+    return first_person.name == "Max" and first_person.age == 25 and first_person.job == "Developer"
+end
 
--- Test 2 : Vérifier si la seconde partie (Jenna) est correctement imprimée
-local partial_output_test2 = "Name: Jenna\nAge: 30\nJob: Designer\n"
-run_test("Test 2", user_code, user_output:sub(-#partial_output_test2), partial_output_test2)
+run_test("Step 2: Vérification des données du premier élément", user_code, check_first_person_values)
 
--- Test 3 : Vérifier l'output complet
-run_test("Test 3", user_code, user_output, expected_output)
+-- Test 3 : Vérification des valeurs du deuxième élément
+function check_second_person_values()
+    local second_person = people[2]
+    return second_person.name == "Jenna" and second_person.age == 30 and second_person.job == "Designer"
+end
+
+run_test("Step 3: Vérification des données du deuxième élément", user_code, check_second_person_values)
+
+-- Test 4 : Vérification de l'ajout d'un troisième élément
+function check_third_person_addition()
+    table.insert(people, {name = "Alice", age = 28, job = "Artist"})
+    return #people == 3 and people[3].name == "Alice" and people[3].age == 28 and people[3].job == "Artist"
+end
+
+run_test("Step 4: Vérification de l'ajout d'un troisième élément", user_code, check_third_person_addition)
+
+-- Test 5 : Vérification de la suppression d'un élément
+function check_removal_of_person()
+    table.remove(people, 2) -- Suppression de la deuxième personne (Jenna)
+    return #people == 2 and people[1].name == "Max" and people[2].name == "Alice"
+end
+
+run_test("Step 5: Vérification de la suppression du deuxième élément", user_code, check_removal_of_person)
