@@ -1,3 +1,4 @@
+-- Fonction pour exécuter le code utilisateur sans montrer de détails
 function execute_user_code(user_code)
     local func, err = load(user_code)
     if func then
@@ -7,6 +8,7 @@ function execute_user_code(user_code)
     end
 end
 
+-- Fonction de test avec vérification de la table sans afficher les détails
 function run_test(step_description, user_code, validation_function)
     local success, _ = execute_user_code(user_code)
     if success and validation_function(user_code) then
@@ -53,12 +55,12 @@ run_test("Step 5: Vérification de la suppression du deuxième élément", user_
 -- Test 6 : Vérification de l'absence de `print` explicite avec les données spécifiques
 function check_forbidden_prints(user_code)
     local forbidden_patterns = {
-        "print%(%s*\"Max\"%s*%)",         
-        "print%(%s*\"25\"%s*%)",          
-        "print%(%s*\"Developer\"%s*%)",   
-        "print%(%s*\"Jenna\"%s*%)",       
-        "print%(%s*\"30\"%s*%)",          
-        "print%(%s*\"Designer\"%s*%)"    
+        "print%(%s*\"Max\"%s*%)",         -- Vérifie un print avec "Max"
+        "print%(%s*\"25\"%s*%)",          -- Vérifie un print avec "25"
+        "print%(%s*\"Developer\"%s*%)",   -- Vérifie un print avec "Developer"
+        "print%(%s*\"Jenna\"%s*%)",       -- Vérifie un print avec "Jenna"
+        "print%(%s*\"30\"%s*%)",          -- Vérifie un print avec "30"
+        "print%(%s*\"Designer\"%s*%)"     -- Vérifie un print avec "Designer"
     }
 
     for _, pattern in ipairs(forbidden_patterns) do
@@ -84,6 +86,7 @@ function check_output_and_forbidden_prints(user_code)
     function capture_output(user_code)
         local result = {}
         local function custom_print(...)
+
             table.insert(result, table.concat({...}, " "))
         end
         
@@ -105,3 +108,13 @@ function check_output_and_forbidden_prints(user_code)
     return no_forbidden_prints and output_is_correct
 end
 run_test("Step 7: Vérification que le code produit la sortie correcte sans print explicite", user_code, check_output_and_forbidden_prints)
+
+-- Test 8 : Vérification que l'utilisateur n'imprime pas directement toute la sortie en une seule chaîne
+function check_for_direct_output(user_code)
+    -- Vérifie que l'utilisateur n'imprime pas toute la sortie exacte en une seule fois
+    local forbidden_output = "print%s*%(%s*\"Name: Max Age: 25 Job: Developer Name: Jenna Age: 30 Job: Designer\"%s*%)"
+    
+    -- Si l'utilisateur a ce pattern exact dans son code, le test échoue
+    return not string.match(user_code, forbidden_output)
+end
+run_test("Step 8: Vérification que l'utilisateur n'imprime pas directement toute la sortie en une seule chaîne", user_code, check_for_direct_output)
