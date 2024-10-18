@@ -112,9 +112,10 @@ run_test("Step 7: Vérification que le code produit la sortie correcte sans prin
 -- Test 8 : Vérification que l'utilisateur n'imprime pas directement toute la sortie en une seule chaîne
 function check_for_direct_output(user_code)
     -- Vérifie que l'utilisateur n'imprime pas toute la sortie exacte en une seule fois
-    local forbidden_output = "print%s*%(%s*\"Name: Max Age: 25 Job: Developer Name: Jenna Age: 30 Job: Designer\"%s*%)"
-    
+    local forbidden_output_pattern = "print%s*%(.-\"Name: Max Age: 25 Job: Developer Name: Jenna Age: 30 Job: Designer\".-%)"
+
     -- Si l'utilisateur a ce pattern exact dans son code, le test échoue
-    return not string.match(user_code, forbidden_output)
+    return not string.match(user_code, forbidden_output_pattern)
 end
+
 run_test("Step 8: Vérification que l'utilisateur n'imprime pas directement toute la sortie en une seule chaîne", user_code, check_for_direct_output)
