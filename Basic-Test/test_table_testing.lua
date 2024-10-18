@@ -1,4 +1,3 @@
--- Fonction pour exécuter le code utilisateur sans montrer de détails
 function execute_user_code(user_code)
     local func, err = load(user_code)
     if func then
@@ -8,7 +7,6 @@ function execute_user_code(user_code)
     end
 end
 
--- Fonction de test avec vérification de la table sans afficher les détails
 function run_test(step_description, user_code, validation_function)
     local success, _ = execute_user_code(user_code)
     if success and validation_function(user_code) then
@@ -55,36 +53,34 @@ run_test("Step 5: Vérification de la suppression du deuxième élément", user_
 -- Test 6 : Vérification de l'absence de `print` explicite avec les données spécifiques
 function check_forbidden_prints(user_code)
     local forbidden_patterns = {
-        "print%(%s*\"Max\"%s*%)",         -- Vérifie un print avec "Max"
-        "print%(%s*\"25\"%s*%)",          -- Vérifie un print avec "25"
-        "print%(%s*\"Developer\"%s*%)",   -- Vérifie un print avec "Developer"
-        "print%(%s*\"Jenna\"%s*%)",       -- Vérifie un print avec "Jenna"
-        "print%(%s*\"30\"%s*%)",          -- Vérifie un print avec "30"
-        "print%(%s*\"Designer\"%s*%)"     -- Vérifie un print avec "Designer"
+        "print%(%s*\"Max\"%s*%)",         
+        "print%(%s*\"25\"%s*%)",          
+        "print%(%s*\"Developer\"%s*%)",   
+        "print%(%s*\"Jenna\"%s*%)",       
+        "print%(%s*\"30\"%s*%)",          
+        "print%(%s*\"Designer\"%s*%)"    
     }
 
-    -- Boucle sur chaque motif et vérifie s'il existe dans le code utilisateur
     for _, pattern in ipairs(forbidden_patterns) do
         if string.match(user_code, pattern) then
-            return false  -- Échoue si un pattern interdit est trouvé
+            return false  
         end
     end
-    return true  -- Passe si aucun print explicite interdit n'est trouvé
+    return true 
 end
 run_test("Step 6: Vérification de l'absence de prints explicites interdits", user_code, check_forbidden_prints)
 
 -- Test 7 : Vérification que le code produit la sortie correcte et n'utilise pas de print explicites
 function check_output_and_forbidden_prints(user_code)
-    -- Vérifie qu'aucun `print` explicite n'est utilisé
+  
     local no_forbidden_prints = check_forbidden_prints(user_code)
     
-    -- Capture de la sortie du code utilisateur
     local output = ""
     local success, _ = pcall(function()
         output = capture_output(user_code)
     end)
     
-    -- Fonction pour capturer la sortie
+
     function capture_output(user_code)
         local result = {}
         local function custom_print(...)
@@ -98,15 +94,12 @@ function check_output_and_forbidden_prints(user_code)
         return table.concat(result, "\n")
     end
 
-    -- Normalisation de la sortie (supprime les espaces et normalise les retours à la ligne)
     function normalize_output(output)
         return output:gsub("%s+", " "):gsub("\n", " "):trim()
     end
     
-    -- Sortie attendue
     local expected_output = "Name: Max Age: 25 Job: Developer Name: Jenna Age: 30 Job: Designer"
     
-    -- Vérifie que la sortie correspond à la sortie attendue
     local output_is_correct = (normalize_output(output) == expected_output)
 
     return no_forbidden_prints and output_is_correct
