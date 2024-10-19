@@ -1,55 +1,26 @@
--- Fonction pour exécuter le code utilisateur sans montrer de détails
-function execute_user_code(user_code)
-    if not user_code or user_code == "" then
-        -- Si le code utilisateur est nil ou vide, retourner une erreur explicite
-        return false, "Error: No user code provided or code is empty"
-    end
+local tests = {}
 
-    -- Tenter de charger le code utilisateur
-    local func, err = load(user_code)
-    
-    if not func then
-        -- Si le code utilisateur ne peut pas être chargé, retourner l'erreur
-        return false, "Error while loading user code: " .. err
-    end
+-- Test 1: Vérification de la sortie attendue
+table.insert(tests, function()
+    local output = execute_user_code()  -- Exécuter le code de l'utilisateur
+    local expected_output = "Name: Max\nAge: 25\nJob: Developer\nName: Jenna\nAge: 30\nJob: Designer"
+    return output == expected_output, "Test 1: Vérification de la sortie attendue"
+end)
 
-    -- Exécuter le code chargé
-    return pcall(func)
-end
+-- Test 2: Vérification du nombre d'appels à print()
+table.insert(tests, function()
+    local print_calls = count_print_calls(user_code)
+    return print_calls >= 3, "Test 2: Vérification du nombre d'appels à print()"
+end)
 
--- Fonction de test avec vérification de la table sans afficher les détails
-function run_test(step_description, user_code, validation_function)
-    print("Testing user code for:", step_description)  -- Affichage pour le debug
-    print("Code utilisateur testé :\n", user_code)  -- Affichage du code utilisateur pour le debug
+-- Ajouter d'autres tests ici...
 
-    -- Exécuter le code utilisateur et capturer les erreurs s'il y en a
-    local success, err = execute_user_code(user_code)
-
-    -- Si l'exécution a échoué, afficher l'erreur
-    if not success then
-        print(step_description .. " : Test Failed! Error: " .. (err or "Unknown error"))
-        return
-    end
-
-    -- Si l'exécution est réussie, vérifier la fonction de validation
-    if validation_function(user_code) then
-        print(step_description .. " : Test Passed!")
+-- Boucle pour exécuter tous les tests
+for i, test in ipairs(tests) do
+    local success, test_name = test()
+    if success then
+        print(test_name .. " passed.")
     else
-        print(step_description .. " : Test Failed!")
+        print(test_name .. " failed.")
     end
 end
-
--- Test 8 : Vérification que l'utilisateur n'imprime pas directement toute la sortie en une seule chaîne
-function check_for_direct_output(user_code)
-    -- Expression régulière stricte pour vérifier l'impression directe de la chaîne complète
-    local forbidden_output_pattern = [[print%s*\(%s*"Name:%s*Max%s*Age:%s*25%s*Job:%s*Developer%s*Name:%s*Jenna%s*Age:%s*30%s*Job:%s*Designer"%s*\)]]
-    
-    -- Log pour vérifier l'exécution
-    print("Vérification de la présence du pattern dans le code : ", forbidden_output_pattern)
-
-    -- Si l'utilisateur a ce pattern exact dans son code, le test échoue
-    return not string.match(user_code, forbidden_output_pattern)
-end
-
--- Appel du test avec vérification du code utilisateur et gestion des erreurs
-run_test("Step 8: Vérification que l'utilisateur n'imprime pas directement toute la sortie en une seule chaîne", user_code, check_for_direct_output)
