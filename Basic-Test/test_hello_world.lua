@@ -1,3 +1,4 @@
+-- Fonction pour capturer la sortie du code utilisateur
 function capture_output(code)
     local output = {}
     local function capture_print(...)
@@ -21,29 +22,35 @@ function capture_output(code)
         return nil, message
     end
 
-    return table.concat(output, " "), nil
+    return table.concat(output, "\n"), nil  -- Ajouter un vrai retour à la ligne entre chaque print
 end
 
--- Fonction pour supprimer les espaces blancs de début et fin de chaîne
+-- Fonction pour supprimer les espaces blancs et retours à la ligne de début et fin de chaîne
 function trim(s)
-   return (s:gsub("^%s*(.-)%s*$", "%1"))
+    return (s:gsub("^%s*(.-)%s*$", "%1"))
 end
 
+-- Fonction pour nettoyer la chaîne en supprimant les espaces multiples et les retours à la ligne
+function normalize_string(s)
+    return s:gsub("%s+", " "):gsub("\n", " "):gsub("^%s*(.-)%s*$", "%1")
+end
+
+-- Fonction pour exécuter le test
 function run_test(user_code, expected_output)
     local result, err = capture_output(user_code)
 
     if err then
         print("Test Failed! An error occurred during execution.")
     else
-        -- Nettoyer les espaces blancs et retours à la ligne dans la sortie et l'attendu
-        result = trim(result)
-        expected_output = trim(expected_output)
+        -- Normaliser les résultats pour enlever les espaces multiples et retours à la ligne superflus
+        result = normalize_string(result)
+        expected_output = normalize_string(expected_output)
 
         if result == expected_output then
             print("Test Passed!")
         else
             print("Test Failed! The output does not match the expected result.")
-            -- Ajout de logs pour voir la différence entre les deux
+            -- Loguer la différence entre le résultat et l'attendu
             print("Expected: [" .. expected_output:gsub("\n", "\\n"):gsub(" ", "_") .. "]")
             print("Got: [" .. result:gsub("\n", "\\n"):gsub(" ", "_") .. "]")
         end
