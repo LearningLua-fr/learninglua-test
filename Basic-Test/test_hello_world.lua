@@ -29,7 +29,6 @@ function trim(s)
    return (s:gsub("^%s*(.-)%s*$", "%1"))
 end
 
--- Fonction pour exécuter le test
 function run_test(user_code, expected_output)
     local result, err = capture_output(user_code)
 
@@ -44,10 +43,9 @@ function run_test(user_code, expected_output)
             print("Test Passed!")
         else
             print("Test Failed! The output does not match the expected result.")
-            -- Loguer la différence entre le résultat et l'attendu
-            print("Expected: [" .. expected_output .. "]")
-            print("Got: [" .. result .. "]")
+            -- Ajout de logs pour voir la différence entre les deux
+            print("Expected: [" .. expected_output:gsub("\n", "\\n"):gsub(" ", "_") .. "]")
+            print("Got: [" .. result:gsub("\n", "\\n"):gsub(" ", "_") .. "]")
         end
     end
 end
-
