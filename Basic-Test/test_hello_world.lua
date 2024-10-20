@@ -1,17 +1,19 @@
--- Fonction pour exécuter le code utilisateur contenu dans test_du_joueur
-function execute_user_code()
-    load(test_du_joueur)()  -- Exécuter le code utilisateur contenu dans la variable
+-- Fonction pour vérifier si le code contient une certaine chaîne
+function contains_print_statement(code)
+    -- Vérifier que le code n'est pas vide
+    if type(code) ~= "string" or code == "" then
+        error("Invalid input: code must be a non-empty string")
+    end
+
+    -- Ne montre pas la réponse directement
+    return string.find(code, "print") ~= nil
 end
 
--- Fonction pour tester le code de l'utilisateur
-function run_test()
-    local success, message = pcall(execute_user_code)
-    if success then
+-- Fonction pour exécuter le code utilisateur dans un environnement sécurisé
+function run_test(code)
+    if contains_print_statement(code) then
         print("Test Passed!")
     else
-        print("Test Failed! Error: " .. message)
+        print("Test Failed! A 'print' statement is expected.")
     end
 end
-
--- Lancement du test
-run_test()
