@@ -36,7 +36,7 @@ function run_test(user_code, expected_output)
     if err then
         print("Test Failed! An error occurred during execution.")
     else
-        -- Nettoyer les espaces et retours à la ligne
+        -- Nettoyer les espaces blancs et retours à la ligne dans la sortie et l'attendu
         result = trim(result)
         expected_output = trim(expected_output)
 
@@ -44,9 +44,10 @@ function run_test(user_code, expected_output)
             print("Test Passed!")
         else
             print("Test Failed! The output does not match the expected result.")
-            -- Ajout de logs pour voir la différence entre les deux
+            -- Loguer la différence entre le résultat et l'attendu
             print("Expected: [" .. expected_output .. "]")
             print("Got: [" .. result .. "]")
         end
     end
 end
+
