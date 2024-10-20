@@ -1,4 +1,3 @@
--- Fonction pour capturer la sortie du code utilisateur
 function capture_output(code)
     local output = {}
     local function capture_print(...)
@@ -25,15 +24,26 @@ function capture_output(code)
     return table.concat(output, " "), nil
 end
 
+-- Fonction pour supprimer les espaces blancs de début et fin de chaîne
+function trim(s)
+   return (s:gsub("^%s*(.-)%s*$", "%1"))
+end
+
 -- Fonction pour exécuter le test
 function run_test(user_code, expected_output)
     local result, err = capture_output(user_code)
 
     if err then
         print("Test Failed! An error occurred during execution.")
-    elseif result == expected_output then
-        print("Test Passed!")
     else
-        print("Test Failed! The output does not match the expected result.")
+        -- Comparer les résultats en nettoyant les espaces blancs
+        result = trim(result)
+        expected_output = trim(expected_output)
+
+        if result == expected_output then
+            print("Test Passed!")
+        else
+            print("Test Failed! The output does not match the expected result.")
+        end
     end
 end
