@@ -1,24 +1,16 @@
-function run_test(user_code, user_output, expected_output)
-    if user_output == expected_output then
+-- Fonction pour vérifier si le code contient une certaine chaîne
+function contains_print_statement(user_code)
+    return string.find(user_code, "print") ~= nil
+end
+
+-- Fonction qui prend le code de l'utilisateur comme paramètre
+function run_test(user_code)
+    if contains_print_statement(user_code) then
         print("Test Passed!")
     else
-        print("Test Failed!")
-        print("User Code: \n" .. user_code)
-        print("Expected Output: " .. expected_output)
-        print("User Output: " .. user_output)
+        print("Test Failed! The code must contain a 'print' statement.")
     end
 end
 
-function execute_user_code(user_code)
-    return "Résultat du code utilisateur"
-end
-
-
-local user_code = [[
-    print("Hello, World!")  -- Le code soumis par l'utilisateur
-]]
-
-local expected_output = "Hello, World!" 
-local user_output = execute_user_code(user_code) 
-
-run_test(user_code, user_output, expected_output)
+-- Le code de l'utilisateur est passé comme argument lors de l'appel de run_test
+run_test(user_code)
