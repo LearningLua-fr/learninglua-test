@@ -42,17 +42,23 @@ function run_test(user_code, expected_output)
     if err then
         print("Test Failed! An error occurred during execution.")
     else
-        -- Normaliser les résultats pour enlever les espaces multiples et retours à la ligne superflus
+        -- Afficher la sortie brute et attendue avant normalisation
+        print("Raw result: [" .. result:gsub("\n", "\\n"):gsub(" ", "_") .. "]")
+        print("Raw expected: [" .. expected_output:gsub("\n", "\\n"):gsub(" ", "_") .. "]")
+
+        -- Nettoyer et normaliser les résultats pour éviter les différences dues aux espaces/retours à la ligne
         result = normalize_string(result)
         expected_output = normalize_string(expected_output)
 
+        -- Afficher la sortie nettoyée pour vérifier la normalisation
+        print("Normalized result: [" .. result:gsub("\n", "\\n"):gsub(" ", "_") .. "]")
+        print("Normalized expected: [" .. expected_output:gsub("\n", "\\n"):gsub(" ", "_") .. "]")
+
+        -- Comparer le résultat avec l'attendu
         if result == expected_output then
             print("Test Passed!")
         else
             print("Test Failed! The output does not match the expected result.")
-            -- Loguer la différence entre le résultat et l'attendu
-            print("Expected: [" .. expected_output:gsub("\n", "\\n"):gsub(" ", "_") .. "]")
-            print("Got: [" .. result:gsub("\n", "\\n"):gsub(" ", "_") .. "]")
         end
     end
 end
