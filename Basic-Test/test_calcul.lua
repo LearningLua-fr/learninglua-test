@@ -1,60 +1,53 @@
-local tests = {}
 
--- Fonction pour exécuter le code utilisateur et capturer la sortie
-function execute_user_code()
-    local result = {}
-    local function custom_print(...)
-        table.insert(result, table.concat({...}, " "))
-    end
-    
-    local original_print = print
-    print = custom_print
-    
-    -- Exécuter le code de l'utilisateur (par exemple, via une fonction globale)
-    local success, message = pcall(user_code)  -- user_code doit être une fonction contenant le code de l'utilisateur
+function contains_correct_variables(code)
+    local has_a = string.match(code, "local%s+a%s*=%s*5")
+    local has_b = string.match(code, "local%s+b%s*=%s*10")
+    return has_a ~= nil and has_b ~= nil
+end
 
-    -- Restaurer la fonction print originale
-    print = original_print
-    
-    if success then
-        return table.concat(result, "\n")  -- Retourne la sortie capturée
+function contains_sum_statement(code)
+    return string.match(code, "a%s*%+%s*b") ~= nil
+end
+
+function normalize_string(str)
+    return str:gsub("%s+", " "):gsub("^%s*(.-)%s*$", "%1")
+end
+
+function final_is_not_equal(user_output, expected_output_user)
+    local normalized_user_output = normalize_string(user_output)
+    local normalized_expected_output = normalize_string(expected_output_user)
+
+    if normalized_user_output == normalized_expected_output then
+        return true
     else
-        return nil, message  -- Retourne une erreur si l'exécution échoue
+        return false
     end
 end
 
--- Fonction pour compter les appels à print() dans le code utilisateur
-function count_print_calls(user_code)
-    local print_count = 0
-    for _ in string.gmatch(user_code, "print%(") do
-        print_count = print_count + 1
-    end
-    return print_count
-end
-
--- Fonction pour vérifier la présence d'au moins une table
-function has_table_in_code(user_code)
-    return string.match(user_code, "%b{}") ~= nil  -- Recherche d'une table (délimitée par {} dans le code)
-end
-
--- Test 1: Vérification de la présence d'au moins une table
-table.insert(tests, function()
-    local has_table = has_table_in_code(user_code)
-    return has_table, "Test 1: Vérification de la présence d'au moins une table"
-end)
-
--- Test 2: Vérification du nombre d'appels à print() (maximum 3)
-table.insert(tests, function()
-    local print_calls = count_print_calls(user_code)
-    return print_calls <= 3, "Test 2: Vérification du nombre d'appels à print()"
-end)
-
--- Boucle pour exécuter tous les tests
-for i, test in ipairs(tests) do
-    local success, test_name = test()
-    if success then
-        print(test_name .. " passed.")
+function run_test(user_code, user_output, expected_output_user)
+    if final_is_not_equal(user_output, expected_output_user) then
+        print("Test Passed 1/3: Output is correct")
     else
-        print(test_name .. " failed.")
+        print("Test Failed 1/3: Output is not equal to expected output")
+    end
+
+    if contains_correct_variables(user_code) then
+        print("Test Passed 2/3: Variables a and b are correct")
+    else
+        print("Test Failed 2/3: Variables a and b are missing or incorrect")
+    end
+
+    if contains_sum_statement(user_code) then
+        print("Test Passed 3/3: Sum of a and b is correct")
+    else
+        print("Test Failed 3/3: Sum statement is missing or incorrect")
+    end
+
+    if final_is_not_equal(user_output, expected_output_user) and contains_correct_variables(user_code) and contains_sum_statement(user_code) then
+        print("All tests passed")
+    else
+        print("Some tests failed")
     end
 end
+
+run_test(user_code, user_output, expected_output_user)
