@@ -14,7 +14,7 @@ function run_test(code)
     if final_is_not_equal(user_code, user_output, expected_output_user) then
     print("Test Passed 1/2")
     else
-        print("Test Failed! 2 //Output is not equal to expected output"..user_output.." "..expected_output_user)
+        print("Test Failed! 1 //Output is not equal to expected output"..user_output.." "..expected_output_user)
     end
 
     if contains_print_statement(user_code) then
