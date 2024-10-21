@@ -2,8 +2,8 @@ function contains_print_statement(code)
     return string.match(user_code, "print%(") ~= nil
 end
 
-function final_is_not_equal(code, user_output, expected_output)
-    if user_output == expected_output then
+function final_is_not_equal(code, user_output, expected_output_user)
+    if user_output == expected_output_user then
         return true
     else
         return false
@@ -11,7 +11,7 @@ function final_is_not_equal(code, user_output, expected_output)
 end
 
 function run_test(code)
-    if final_is_not_equal(user_code, user_output, expected_output) then
+    if final_is_not_equal(user_code, user_output, expected_output_user) then
         print("Test Passed 1/2")
     else
         print("Test Failed! 1 //Output is not equal to expected output")
@@ -24,4 +24,4 @@ function run_test(code)
     end
 end
 
-run_test(user_code, user_output, expected_output)
+run_test(user_code, user_output, expected_output_user)
