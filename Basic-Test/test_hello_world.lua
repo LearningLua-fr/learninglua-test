@@ -7,7 +7,7 @@ function run_test(code)
     if contains_print_statement(user_code) then
         print("Test Passed 1/1")
     else
-        print("Test Failed! 1/1")
+        print("Test Failed! 1/1 //No print on code")
     end
 end
 
