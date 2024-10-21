@@ -1,4 +1,4 @@
-
+local expected_output = "Hello, World!"
 function contains_print_statement(code)
     return string.match(user_code, "print%(") ~= nil
 end
