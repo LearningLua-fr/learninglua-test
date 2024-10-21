@@ -25,4 +25,4 @@ function run_test(code)
     end
 end
 
-run_test(user_code)
+run_test(user_code, user_output, expected_output)
