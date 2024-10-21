@@ -29,6 +29,12 @@ function run_test(user_code, user_output, expected_output_user)
     else
         print("Test Failed 2/2: No print statement found in the code")
     end
+
+    if final_is_not_equal(user_output, expected_output_user) and contains_print_statement(user_code) then
+        print("All tests passed")
+    else
+        print("Some tests failed")
+    end
 end
 
 run_test(user_code, user_output, expected_output_user)
