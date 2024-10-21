@@ -1,11 +1,16 @@
 function contains_print_statement(code)
-    -- Vérifie si le code utilisateur contient un appel à print
     return string.match(code, "print%(") ~= nil
 end
 
+function normalize_string(str)
+    return str:gsub("%s+", " "):gsub("^%s*(.-)%s*$", "%1")
+end
+
 function final_is_not_equal(user_output, expected_output_user)
-    -- Vérifie si la sortie utilisateur correspond à la sortie attendue
-    if user_output == expected_output_user then
+    local normalized_user_output = normalize_string(user_output)
+    local normalized_expected_output = normalize_string(expected_output_user)
+
+    if normalized_user_output == normalized_expected_output then
         return true
     else
         return false
@@ -13,16 +18,14 @@ function final_is_not_equal(user_output, expected_output_user)
 end
 
 function run_test(user_code, user_output, expected_output_user)
-    -- Test 1: Vérifie si la sortie utilisateur correspond à la sortie attendue
     if final_is_not_equal(user_output, expected_output_user) then
         print("Test Passed 1/2")
     else
         print("Test Failed 1/2: Output is not equal to expected output")
-        print(user_output)
-        print(expected_output_user)
+        print("User Output (normalized): [" .. normalize_string(user_output) .. "]")
+        print("Expected Output (normalized): [" .. normalize_string(expected_output_user) .. "]")
     end
 
-    -- Test 2: Vérifie si le code utilisateur contient au moins un `print`
     if contains_print_statement(user_code) then
         print("Test Passed 2/2")
     else
@@ -30,5 +33,4 @@ function run_test(user_code, user_output, expected_output_user)
     end
 end
 
--- Appel de la fonction run_test avec les variables user_code, user_output et expected_output_user
 run_test(user_code, user_output, expected_output_user)
