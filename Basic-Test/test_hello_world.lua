@@ -18,8 +18,8 @@ function run_test(user_code, user_output, expected_output_user)
         print("Test Passed 1/2")
     else
         print("Test Failed 1/2: Output is not equal to expected output")
-        print("User Output: [" .. user_output .. "]")
-        print("Expected Output: [" .. expected_output_user .. "]")
+        print(user_output)
+        print(expected_output_user)
     end
 
     -- Test 2: Vérifie si le code utilisateur contient au moins un `print`
