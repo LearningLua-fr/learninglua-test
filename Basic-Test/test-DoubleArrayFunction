@@ -3,11 +3,11 @@ function contains_function_declaration(code)
 end
 
 function contains_return_statement(code)
-    return string.match(code, "return%s+%[") ~= nil  -- Vérifie si une table est retournée
+    return string.match(code, "return%s+inputTab") ~= nil  -- Vérifie si le tableau est retourné
 end
 
 function contains_for_loop(code)
-    return string.match(code, "for%s+i%s+in%s+pairs%(%s*inputTab%s*%)") ~= nil
+    return string.match(code, "for%s+i%s+=%s*1%s*,%s*#inputTab") ~= nil
 end
 
 function contains_if_statement(code)
@@ -57,4 +57,5 @@ function run_test(user_code)
         print("Some tests failed")
     end
 end
+
 run_test(user_code)
