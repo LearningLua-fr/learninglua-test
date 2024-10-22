@@ -57,17 +57,4 @@ function run_test(user_code)
         print("Some tests failed")
     end
 end
-
--- Exemple de code de l'utilisateur à tester
-local user_code = [[
-function DoubleArrayForEvenInteger(inputTab)
-    for i = 1, #inputTab do
-        if inputTab[i] % 2 ~= 0 then
-            inputTab[i] = inputTab[i] * 2
-        end
-    end
-    return inputTab
-end
-]]
-
 run_test(user_code)
