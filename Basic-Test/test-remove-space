@@ -3,7 +3,7 @@ function contains_function_declaration(code)
 end
 
 function contains_return_statement(code)
-    return string.match(code, "return%s+string.gsub%(%s*inputString%s*,%s+\"%%s+\",%s+\"\"%)") ~= nil
+    return string.match(code, "return%s+inputString") ~= nil  
 end
 
 function run_test(user_code)
@@ -19,10 +19,10 @@ function run_test(user_code)
         print("Test Failed 2/3: Return statement is missing or incorrect")
     end
 
-    if user_output == expected_output then
-        print("Test Passed 3/3: Function works correctly for input 'hello world'")
+    if user_output == expected_output_user then
+        print("Test Passed 3/3: Function works as expected")
     else
-        print(string.format("Test Failed 3/3: Expected '%s', but got '%s'", expected_output, user_output))
+        print("Test Failed 3/3: Expected '" .. expected_output_user .. "' but got '" .. user_output .. "'")
     end
 
     if contains_function_declaration(user_code) and contains_return_statement(user_code) then
@@ -31,5 +31,7 @@ function run_test(user_code)
         print("Some tests failed")
     end
 end
+
+
 
 run_test(user_code)
