@@ -38,3 +38,4 @@ function run_test(user_code)
     end
 end
    
+run_test(user_code, user_output, expected_output_user)
