@@ -1,51 +1,75 @@
--- Check if the user code defines the function 'IterateFruits'
 function contains_function_declaration(code)
-    return code and string.match(code, "function%s+IterateFruits%s*%(%s*%)") ~= nil
+    return string.match(code, "function%s+IterateFruits%s*%(%s*%)") ~= nil
 end
 
--- Check if the user code includes a for loop with 'ipairs' to iterate over the array
 function contains_ipairs_loop(code)
-    return code and string.match(code, "for%s+[%w_]+,%s*[%w_]+%s+in%s+ipairs") ~= nil
+    return string.match(code, "for%s+[%w_]+,%s*[%w_]+%s+in%s+ipairs%(%s*[%w_]+%s*%)") ~= nil
 end
 
--- Executes the user function and captures output
+
+function contains_fruits_array(code)
+    return string.match(code, '{%s*"Apple",%s*"Banana",%s*"Orange",%s*"Strawberry",%s*"Mango"%s*}') ~= nil
+end
+
 function capture_user_output(user_function)
     local output = {}
     local original_print = print
     print = function(str) table.insert(output, str) end
-    if user_function then user_function() end  -- Run the user's function if it exists
-    print = original_print  -- Restore original print
+
+    local success, err = pcall(user_function)
+    if not success then
+        print("Error in user function: " .. tostring(err))
+    end
+
+    print = original_print  
     return table.concat(output, "\n")
 end
 
 -- Main test function
-function run_test(user_code, user_function, expected_output_user)
+function run_test(user_code, user_function)
+    local test_passed = 0
+    local total_tests = 4
+
     if contains_function_declaration(user_code) then
-        print("Test Passed 1/3: Function 'IterateFruits' is correctly defined")
+        print("Test Passed 1/4: Function 'IterateFruits' is correctly defined")
+        test_passed = test_passed + 1
     else
-        print("Test Failed 1/3: Function 'IterateFruits' is missing or incorrect")
+        print("Test Failed 1/4: Function 'IterateFruits' is missing or incorrect")
+    end
+
+    if contains_fruits_array(user_code) then
+        print("Test Passed 2/4: Array 'fruits' is correctly defined")
+        test_passed = test_passed + 1
+    else
+        print("Test Failed 2/4: Array 'fruits' is missing or incorrectly defined")
     end
 
     if contains_ipairs_loop(user_code) then
-        print("Test Passed 2/3: Loop with 'ipairs' is correctly defined")
+        print("Test Passed 3/4: Loop with 'ipairs' is correctly defined")
+        test_passed = test_passed + 1
     else
-        print("Test Failed 2/3: Loop with 'ipairs' is missing or incorrect")
+        print("Test Failed 3/4: Loop with 'ipairs' is missing or incorrect")
     end
 
     local user_output = capture_user_output(user_function)
-    if user_output == expected_output_user then
-        print("Test Passed 3/3: Function works correctly and outputs expected results")
+    if user_output == expected_output then
+        print("Test Passed 4/4: Function outputs expected result")
+        test_passed = test_passed + 1
     else
-        print(string.format("Test Failed 3/3: Expected output '%s', but got '%s'", expected_output_user or "nil", user_output or "nil"))
+        print(string.format("Test Failed 4/4: Expected output '%s', but got '%s'", expected_output, user_output))
     end
 
-    if contains_function_declaration(user_code) and contains_ipairs_loop(user_code) and user_output == expected_output_user then
+    -- Résumé final
+    if test_passed == total_tests then
         print("All tests passed")
     else
-        print("Some tests failed")
+        print(string.format("%d/%d tests passed", test_passed, total_tests))
     end
 end
 
--- Example of how to use the test
--- Assuming user_code is the string of code written by the user, and IterateFruits is their function.
-run_test(user_code, IterateFruits, expected_output_user)
+-- Fonction utilisateur
+local function user_function()
+    IterateFruits()
+end
+
+run_test(user_code, user_function)
