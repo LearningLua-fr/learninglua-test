@@ -8,34 +8,52 @@ function contains_string_manipulation(code)
     return string.match(code, "string%.gsub") ~= nil or string.match(code, "string%.sub") ~= nil
 end
 
+-- Vérifie que la sortie de l'utilisateur correspond à la sortie attendue
 function CheckOutput(user_output, expected_output)
-    if user_output == expected_output then
-        return true
-    else 
-        return false
-    end
+    return user_output == expected_output
 end
 
 -- Fonction principale de test
-function run_test(user_code)
-    if not contains_function_declaration(user_code) then
+function run_test(user_code, expected_output)
+    local test_passed = 0
+    local total_tests = 3
+
+    -- Test 1 : Vérifie la déclaration de la fonction
+    if contains_function_declaration(user_code) then
+        print("Test Passed 1/3: The function `ExtractLicense` is correctly defined")
+        test_passed = test_passed + 1
+    else
         print("Test Failed 1/3: The function `ExtractLicense` is not defined")
-    else
-        print("Test Passed 1/3")
     end
-    if not contains_string_manipulation(user_code) then
+
+    -- Test 2 : Vérifie qu'une manipulation de chaîne est utilisée
+    if contains_string_manipulation(user_code) then
+        print("Test Passed 2/3: String manipulation is used in the function")
+        test_passed = test_passed + 1
+    else
         print("Test Failed 2/3: The function `ExtractLicense` does not contain any string manipulation")
-    else
-        print("Test Passed 2/3")
     end
-    if not CheckOutput(ExtractLicense("MIT License"), "MIT") then
-        print("Test Failed 3/3: The function `ExtractLicense` does not return the expected output")
+
+    -- Test 3 : Vérifie la sortie attendue de la fonction
+    local user_function = loadstring(user_code)  -- Charge le code de l'utilisateur pour exécution
+    if user_function then
+        local success, user_output = pcall(user_function, "license:aaabbbccc1454")
+        if success and CheckOutput(user_output, expected_output) then
+            print("Test Passed 3/3: The Expected output is correct")
+            test_passed = test_passed + 1
+        else
+            print("Test Failed 3/3: The Expected output is not correct")
+        end
     else
-        print("Test Passed 3/3")
+        print("Test Failed 3/3: Function could not be loaded")
     end
-    if contains_function_declaration(user_code) and contains_string_manipulation(user_code) and CheckOutput(user_ouput, expected_output) then
+
+    -- Résumé final
+    if test_passed == total_tests then
         print("All tests passed")
+    else
+        print(string.format("%d/%d tests passed", test_passed, total_tests))
     end
 end
-   
-run_test(user_code, user_output, expected_output_user)
+
+run_test(user_code, expected_output)
