@@ -1,0 +1,78 @@
+-- Vérifie que la fonction `ExtractLicense` est définie
+function contains_function_declaration(code)
+    return string.match(code, "function%s+ExtractLicense%s*%(%s*licenseStr%s*%)") ~= nil
+end
+
+-- Vérifie que le code de l'utilisateur contient une manipulation de chaîne (string.gsub ou string.sub)
+function contains_string_manipulation(code)
+    return string.match(code, "string%.gsub") ~= nil or string.match(code, "string%.sub") ~= nil
+end
+
+-- Capture la sortie de la fonction utilisateur pour un test unitaire
+function capture_user_output(user_function, input)
+    local success, output = pcall(user_function, input)
+    if success then
+        return output
+    else
+        print("Error in user function: " .. tostring(output))
+        return nil
+    end
+end
+
+-- Fonction principale de test
+function run_test(user_code)
+    local test_passed = 0
+    local total_tests = 4
+    local license_input = "license:aaabbbccc1454"
+    local expected_output = "aaabbbccc1454"
+
+    -- Test 1 : Vérifie la déclaration de la fonction
+    if contains_function_declaration(user_code) then
+        print("Test Passed 1/4: Function 'ExtractLicense' is correctly defined")
+        test_passed = test_passed + 1
+    else
+        print("Test Failed 1/4: Function 'ExtractLicense' is missing or incorrect")
+    end
+
+    -- Test 2 : Vérifie qu'une manipulation de chaîne est utilisée
+    if contains_string_manipulation(user_code) then
+        print("Test Passed 2/4: String manipulation is used in the function")
+        test_passed = test_passed + 1
+    else
+        print("Test Failed 2/4: String manipulation is missing")
+    end
+
+    -- Test 3 : Vérifie que la fonction retourne le résultat attendu
+    local user_function = loadstring(user_code)  -- Charge le code de l'utilisateur pour exécution
+    if user_function then
+        local user_output = capture_user_output(user_function, license_input)
+        if user_output == expected_output then
+            print("Test Passed 3/4: Function returns expected result")
+            test_passed = test_passed + 1
+        else
+            print(string.format("Test Failed 3/4: Expected output '%s', but got '%s'", expected_output, tostring(user_output)))
+        end
+    else
+        print("Test Failed 3/4: Function could not be loaded")
+    end
+
+    -- Test 4 : Teste une chaîne incorrecte pour vérifier la gestion des erreurs
+    local incorrect_input = "lic:12345xyz"
+    local incorrect_output = capture_user_output(user_function, incorrect_input)
+    if incorrect_output == nil or incorrect_output == incorrect_input then
+        print("Test Passed 4/4: Function handles incorrect format gracefully")
+        test_passed = test_passed + 1
+    else
+        print("Test Failed 4/4: Function did not handle incorrect format as expected")
+    end
+
+    -- Résumé final
+    if test_passed == total_tests then
+        print("All tests passed")
+    else
+        print(string.format("%d/%d tests passed", test_passed, total_tests))
+    end
+end
+
+
+run_test(user_code)
