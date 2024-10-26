@@ -49,12 +49,11 @@ function run_test(user_code, expected_output_user)
         print("Test Failed 3/3: Function could not be loaded - " .. tostring(load_error))
     end
 
-    -- Résumé final
+    -- Résumé final avec débogage détaillé
     if test_passed == total_tests then
         print("All tests passed")
     else
         print(string.format("%d/%d tests passed", test_passed, total_tests))
     end
 end
-
 run_test(user_code, expected_output_user)
