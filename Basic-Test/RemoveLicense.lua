@@ -14,7 +14,7 @@ function CheckOutput(user_output, expected_output)
 end
 
 -- Fonction principale de test
-function run_test(user_code, expected_output)
+function run_test(user_code, expected_output_user)
     local test_passed = 0
     local total_tests = 3
 
@@ -35,17 +35,18 @@ function run_test(user_code, expected_output)
     end
 
     -- Test 3 : Vérifie la sortie attendue de la fonction
-    local user_function = loadstring(user_code)  -- Charge le code de l'utilisateur pour exécution
+    local user_function, load_error = loadstring(user_code .. "\n return ExtractLicense")  -- Charge le code de l'utilisateur pour exécution
     if user_function then
-        local success, user_output = pcall(user_function, "license:aaabbbccc1454")
-        if success and CheckOutput(user_output, expected_output) then
+        local extracted_func = user_function()
+        local success, user_output = pcall(extracted_func, "license:aaabbbccc1454")
+        if success and CheckOutput(user_output, expected_output_user) then
             print("Test Passed 3/3: The Expected output is correct")
             test_passed = test_passed + 1
         else
             print("Test Failed 3/3: The Expected output is not correct")
         end
     else
-        print("Test Failed 3/3: Function could not be loaded")
+        print("Test Failed 3/3: Function could not be loaded - " .. tostring(load_error))
     end
 
     -- Résumé final
@@ -56,4 +57,4 @@ function run_test(user_code, expected_output)
     end
 end
 
-run_test(user_code, expected_output)
+run_test(user_code, expected_output_user)
