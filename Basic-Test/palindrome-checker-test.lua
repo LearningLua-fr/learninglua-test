@@ -57,4 +57,5 @@ function run_test(user_code, user_output, expected_output_user)
     return table.concat(test_result, "\n")
 end
 
-run_test(user_code, user_output, expected_output_user)
+
+print(run_test(user_code, user_output, expected_output_user))
