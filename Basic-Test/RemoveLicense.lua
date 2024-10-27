@@ -19,7 +19,7 @@ function run_test(user_code, expected_output_user)
 
 
     if contains_function_declaration(user_code) then
-        print("Test Passed 1/3: The function `ExtractLicense` is correctly defined")
+        print("Test Passed 1/3")
         test_passed = test_passed + 1
     else
         print("Test Failed 1/3: The function `ExtractLicense` is not defined")
@@ -27,7 +27,7 @@ function run_test(user_code, expected_output_user)
 
     -- Test 2 : Vérifie qu'une manipulation de chaîne est utilisée
     if contains_string_manipulation(user_code) then
-        print("Test Passed 2/3: String manipulation is used in the function")
+        print("Test Passed 2/3")
         test_passed = test_passed + 1
     else
         print("Test Failed 2/3: The function `ExtractLicense` does not contain any string manipulation")
@@ -38,7 +38,7 @@ function run_test(user_code, expected_output_user)
         local extracted_func = user_function()
         local success, user_output = pcall(extracted_func, "license:aaabbbccc1454")
         if success and CheckOutput(user_output, expected_output_user) then
-            print("Test Passed 3/3: The Expected output is correct")
+            print("Test Passed 3/3")
             test_passed = test_passed + 1
         else
             print("Test Failed 3/3: The Expected output is not correct")
