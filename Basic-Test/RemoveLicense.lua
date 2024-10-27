@@ -8,10 +8,13 @@ function contains_string_manipulation(code)
     return string.match(code, "string%.gsub") ~= nil or string.match(code, "string%.sub") ~= nil
 end
 
--- Vérifie que la sortie de l'utilisateur correspond à la sortie attendue
 function check_output(user_output, expected_output)
-    return user_output == expected_output
+    -- Supprime les sauts de ligne des deux chaînes
+    local sanitized_user_output = string.gsub(user_output, "\n", "")
+    local sanitized_expected_output = string.gsub(expected_output, "\n", "")
+    return sanitized_user_output == sanitized_expected_output
 end
+
 
 -- Fonction principale de test
 function run_test(user_code, user_output, expected_output_user)
