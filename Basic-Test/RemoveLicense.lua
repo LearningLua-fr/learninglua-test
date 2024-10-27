@@ -1,4 +1,4 @@
--- Vérifie que la fonction `ExtractLicense` est définie
+ -- Vérifie que la fonction `ExtractLicense` est définie
 function contains_function_declaration(code)
     return string.match(code, "function%s+ExtractLicense%s*%(%s*licenseStr%s*%)") ~= nil
 end
@@ -40,6 +40,8 @@ function run_test(user_code, user_output, expected_output_user)
         table.insert(test_result, "Test Passed 3/3: The Expected output is correct")
         test_passed = test_passed + 1
     else
+        print(user_output)
+        print(expected_output_user)
         table.insert(test_result, "Test Failed 3/3: The Expected output is not correct")
     end
 
