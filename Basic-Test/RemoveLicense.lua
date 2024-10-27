@@ -9,7 +9,11 @@ end
 
 
 function CheckOutput(user_output, expected_output)
-    return user_output == expected_output
+    if user_output == expected_output then
+        return true
+    else
+        return false
+    end
 end
 
 
@@ -33,19 +37,13 @@ function run_test(user_code, expected_output_user)
         print("Test Failed 2/3: The function `ExtractLicense` does not contain any string manipulation")
     end
 
-    local user_function, load_error = loadstring(user_code .. "\n return ExtractLicense")  
-    if user_function then
-        local extracted_func = user_function()
-        local success, user_output = pcall(extracted_func, "license:aaabbbccc1454")
-        if success and CheckOutput(user_output, expected_output_user) then
-            print("Test Passed 3/3")
-            test_passed = test_passed + 1
-        else
-            print("Test Failed 3/3: The Expected output is not correct")
-        end
+    if CheckOutput(user_code, expected_output_user) then
+        print("Test Passed 3/3")
+        test_passed = test_passed + 1
     else
-        print("Test Failed 3/3: Function could not be loaded - " .. tostring(load_error))
+        print("Test Failed 3/3: The function `ExtractLicense` does not return the expected output")
     end
+    
 
     if test_passed == total_tests then
         print("All tests passed")
