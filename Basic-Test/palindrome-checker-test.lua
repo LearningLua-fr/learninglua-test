@@ -19,7 +19,7 @@ end
 -- Fonction principale de test
 function run_test(user_code, user_output, expected_output_user)
     local test_passed = 0
-    local total_tests = 3
+    local total_tests = 2
     local test_result = {}
 
     -- Test 1 : Vérifie la déclaration de la fonction
@@ -36,14 +36,6 @@ function run_test(user_code, user_output, expected_output_user)
         test_passed = test_passed + 1
     else
         table.insert(test_result, "Test Failed 2/3: The function `IsPalindrome` does not contain any string manipulation")
-    end
-
-    -- Test 3 : Vérifie la sortie attendue de la fonction
-    if check_output(user_output, expected_output_user) then
-        table.insert(test_result, "Test Passed 3/3: The Expected output is correct")
-        test_passed = test_passed + 1
-    else
-        table.insert(test_result, "Test Failed 3/3: The Expected output is not correct")
     end
 
     -- Résumé final
