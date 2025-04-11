@@ -46,9 +46,9 @@ local function run_test(user_code, user_output, expected_output_user)
 
     -- Vérification de l'égalité entre user_output et expected_output_user
     if final_is_equal(user_output, expected_output_user) then
-        print(user_output, expected_output_user)
         print("Test Passed 4/4: Output is as expected.")
     else
+        print(user_output, expected_output_user)
         print("Test Failed 4/4: Output is not as expected.")
         tests_passed = false
     end
