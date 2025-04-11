@@ -11,7 +11,7 @@ local function contains_two_returns(code)
 end
 
 local function contains_one_print(code)
-    return string.match(code, "print%s*%(") ~= nil and not string.match(code, "print%s*%(.+%);%s*print%s*%(")
+    return string.match(code, "console.log%s*%(") ~= nil and not string.match(code, "console.log%s*%(.+%);%s*console.log%s*%(")
 end
 
 local function final_is_equal(user_output, expected_output_user)
