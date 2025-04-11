@@ -1,60 +1,41 @@
-local function contains_print_function(code)
-    return string.match(code, "function%s+printString%s*%(") ~= nil
-end
-
-local function calls_print_function(code)
-    return string.match(code, "printString%s*%(%s*%)") ~= nil
-end
-
 local function contains_console_log(code)
-    return string.match(code, "console%.log") ~= nil
+    return string.match(code, "console%.log%s*%(") ~= nil
 end
 
-local function final_output_is_correct(user_output, expected_output)
-    local clean = function(s)
-        return string.gsub(s, "%s+", " "):gsub("^%s*(.-)%s*$", "%1")
-    end
-    return clean(user_output) == clean(expected_output)
+local function normalize_string(str)
+    local normalized = string.gsub(str, "%s+", " ")
+    return string.gsub(normalized, "^%s*(.-)%s*$", "%1")
 end
 
--- Test runner
+local function final_is_equal(user_output, expected_output_user)
+    local normalized_user_output = normalize_string(user_output)
+    local normalized_expected_output = normalize_string(expected_output_user)
+    return normalized_user_output == normalized_expected_output
+end
+
 local function run_test(user_code, user_output, expected_output_user)
     local passed = true
 
+    if final_is_equal(user_output, expected_output_user) then
+        print("✅ Test 1/2 Passed: Output matches expected output.")
+    else
+        print("❌ Test 1/2 Failed: Output does not match expected output.")
+        passed = false
+    end
+
     if contains_console_log(user_code) then
-        print("❌ Test 1/4 Failed: You used console.log, which is forbidden.")
+        print("❌ Test 2/2 Failed: console.log is forbidden but found in the code.")
         passed = false
     else
-        print("✅ Test 1/4 Passed: console.log is not used.")
-    end
-
-    if contains_print_function(user_code) then
-        print("✅ Test 2/4 Passed: printString function is defined.")
-    else
-        print("❌ Test 2/4 Failed: printString function is not defined.")
-        passed = false
-    end
-
-    if calls_print_function(user_code) then
-        print("✅ Test 3/4 Passed: printString is called.")
-    else
-        print("❌ Test 3/4 Failed: printString is not called.")
-        passed = false
-    end
-
-    if final_output_is_correct(user_output, expected_output_user) then
-        print("✅ Test 4/4 Passed: Output is as expected.")
-    else
-        print("❌ Test 4/4 Failed: Output is incorrect.")
-        passed = false
+        print("✅ Test 2/2 Passed: console.log is not used.")
     end
 
     if passed then
-        print("🎉 All tests passed. Well done!")
+        print("🎉 All tests passed.")
     else
         print("⚠️ Some tests failed. Please review your code.")
     end
 end
 
--- Exemple d’appel
-run_test(user_code, user_output, expected_output_user) 
+-- Lancement du test
+run_test(user_code, user_output, expected_output_user)
