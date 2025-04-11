@@ -7,7 +7,7 @@ local function contains_function(code)
 end
 
 local function calls_print_function(code)
-    return string.match(code, "printString%s*%(%s*%)") ~= nil
+    return string.match(code, "printString%s*%(%s*['\"].+['\"]%s*%)") ~= nil
 end
 
 local function normalize_string(str)
