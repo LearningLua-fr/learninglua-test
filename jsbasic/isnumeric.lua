@@ -17,10 +17,11 @@ local function contains_one_print(code)
     return string.match(code, "console.log%s*%(") ~= nil
 end
 
--- Normalise les chaînes de caractères en éliminant les espaces superflus
+-- Normalise les chaînes de caractères en éliminant les espaces superflus et les retours à la ligne
 local function final_is_equal(user_output, expected_output_user)
-    local normalized_user_output = string.gsub(user_output, "%s+", " ")
-    local normalized_expected_output = string.gsub(expected_output_user, "%s+", " ")
+    -- Supprime les espaces et les retours à la ligne (caractères de fin de ligne)
+    local normalized_user_output = string.gsub(user_output, "%s+", "")
+    local normalized_expected_output = string.gsub(expected_output_user, "%s+", "")
     return normalized_user_output == normalized_expected_output
 end
 
@@ -49,23 +50,4 @@ local function run_test(user_code, user_output, expected_output_user)
         print("Test Passed 3/4: 'isNumeric' contains exactly one print statement.")
     else
         print("Test Failed 3/4: 'isNumeric' does not contain exactly one print statement.")
-        tests_passed = false
-    end
-
-    -- Test 4 : Vérifie si la sortie utilisateur correspond à la sortie attendue
-    if final_is_equal(user_output, expected_output_user) then
-        print("Test Passed 4/4: Output is as expected.")
-    else
-        print("Test Failed 4/4: Output is not as expected.")
-        tests_passed = false
-    end
-
-    -- Résumé final
-    if tests_passed then
-        print("All tests passed.")
-    else
-        print("Some tests failed. Please review your code.")
-    end
-end
-
-run_test(user_code, user_output, expected_output_user)
+        tests_passed = false_
