@@ -1,17 +1,26 @@
-local lfs = require("lfs")
+local function contains_forbidden_output(code)
+    local forbidden_patterns = {
+        'print%s*%(%s*["\']Bonjour["\']%s*%)',
+        'console%.log%s*%(%s*["\']Bonjour["\']%s*%)',
+        '["\']Bonjour["\']'
+    }
 
--- Fonction utilitaire
+    for _, pattern in ipairs(forbidden_patterns) do
+        if string.match(code, pattern) then
+            return true
+        end
+    end
+
+    return false
+end
+
 local function normalize_string(str)
-    return string.gsub(str, "%s+", " "):gsub("^%s*(.-)%s*$", "%1")
+    return string.gsub(str or "", "%s+", " "):gsub("^%s*(.-)%s*$", "%1")
 end
 
 local function file_exists(filename)
     local f = io.open(filename, "r")
-    if f then
-        f:close()
-        return true
-    end
-    return false
+    if f then f:close() return true else return false end
 end
 
 local function read_file(filename)
@@ -22,67 +31,51 @@ local function read_file(filename)
     return content
 end
 
--- Vérifie si "fs" est utilisé
-local function uses_fs_module(code)
-    return string.match(code, "require%s*%(?%s*['\"]fs['\"]%s*%)?") or string.match(code, "fs%.")
-end
-
--- Vérifie si un print("Bonjour") direct est présent
-local function has_direct_bonjour_print(code)
-    return string.match(code, 'console%.log%s*%(%s*["\']Bonjour["\']%s*%)') ~= nil
-end
-
--- Test principal
 local function run_test(user_code, user_output, expected_output_user)
     local passed = true
 
-    -- Test 1 : fs utilisé
-    if uses_fs_module(user_code) then
-        print("Test Passed 1/5: fs module is used.")
-    else
-        print("Test Failed 1/5: fs module is not used.")
+    if contains_forbidden_output(user_code) then
+        print("❌ Test 1/5: Forbidden direct string 'Bonjour' used.")
         passed = false
+    else
+        print("✅ Test 1/5: No forbidden direct output detected.")
     end
 
-    -- Test 2 : fichier input.txt existe
     if file_exists("input.txt") then
-        print("Test Passed 2/5: input.txt was created.")
+        print("✅ Test 2/5: 'input.txt' exists.")
     else
-        print("Test Failed 2/5: input.txt not found.")
+        print("❌ Test 2/5: 'input.txt' not found.")
         passed = false
     end
 
-    -- Test 3 : contenu du fichier
-    local content = read_file("input.txt")
-    if content and normalize_string(content) == "Bonjour" then
-        print("Test Passed 3/5: input.txt contains 'Bonjour'.")
+    local file_content = read_file("input.txt")
+    if normalize_string(file_content) == "Bonjour" then
+        print("✅ Test 3/5: 'input.txt' contains 'Bonjour'.")
     else
-        print("Test Failed 3/5: input.txt does not contain 'Bonjour'.")
+        print("❌ Test 3/5: 'input.txt' content incorrect.")
         passed = false
     end
 
-    -- Test 4 : Pas de console.log direct
-    if has_direct_bonjour_print(user_code) then
-        print("Test Failed 4/5: Direct console.log('Bonjour') used.")
-        passed = false
-    else
-        print("Test Passed 4/5: No direct console.log('Bonjour').")
-    end
-
-    -- Test 5 : output affiché correctement
     if normalize_string(user_output) == "Bonjour" then
-        print("Test Passed 5/5: Output is 'Bonjour'.")
+        print("✅ Test 4/5: Output is 'Bonjour'.")
     else
-        print("Test Failed 5/5: Output is not 'Bonjour'.")
+        print("❌ Test 4/5: Output mismatch.")
+        passed = false
+    end
+
+    if normalize_string(user_output) == normalize_string(expected_output_user) then
+        print("✅ Test 5/5: Final output matches expected.")
+    else
+        print("❌ Test 5/5: Final output doesn't match expected.")
         passed = false
     end
 
     if passed then
-        print("✅ All tests passed.")
+        print("🎉 All tests passed.")
     else
-        print("❌ Some tests failed.")
+        print("🔁 Some tests failed.")
     end
 end
 
--- Exécution
+-- Appel du test
 run_test(user_code, user_output, expected_output_user)
