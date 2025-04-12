@@ -1,77 +1,70 @@
-local function contains_forbidden_output(code)
-    local forbidden_patterns = {
-        'print%s*%(%s*["\']Bonjour["\']%s*%)',
-        'console%.log%s*%(%s*["\']Bonjour["\']%s*%)',
-        '["\']Bonjour["\']'
-    }
-
-    for _, pattern in ipairs(forbidden_patterns) do
-        if string.match(code, pattern) then
-            return true
-        end
-    end
-
-    return false
+local function contains_console_log(code)
+    return string.match(code, "console%.log%s*%(") ~= nil
 end
 
-local function normalize_string(str)
-    return string.gsub(str or "", "%s+", " "):gsub("^%s*(.-)%s*$", "%1")
+local function contains_direct_bonjour(code)
+    return string.match(code, "[\"']Bonjour[\"']") ~= nil and not string.match(code, "fs%.writeFileSync")
 end
 
-local function file_exists(filename)
-    local f = io.open(filename, "r")
-    if f then f:close() return true else return false end
+local function contains_fs_usage(code)
+    return string.match(code, "require%s*%(?['\"]fs['\"]%)?") ~= nil
 end
 
-local function read_file(filename)
-    local f = io.open(filename, "r")
-    if not f then return nil end
-    local content = f:read("*all")
-    f:close()
-    return content
+local function creates_input_txt(code)
+    return string.match(code, "writeFileSync%s*%(%s*['\"]input%.txt['\"]") ~= nil
+end
+
+local function reads_input_txt(code)
+    return string.match(code, "readFileSync%s*%(%s*['\"]input%.txt['\"]") ~= nil
+end
+
+local function output_correct(user_output, expected_output_user)
+    local norm = function(s) return s:gsub("%s+", "") end
+    return norm(user_output) == norm(expected_output_user)
 end
 
 local function run_test(user_code, user_output, expected_output_user)
     local passed = true
 
-    -- 1. Check for forbidden direct usage
-    if contains_forbidden_output(user_code) then
-        print("Test 1/5 Failed: Direct usage of 'Bonjour' found in code.")
+    if contains_console_log(user_code) then
+        print("Test 1/6 Failed: console.log is forbidden.")
         passed = false
     else
-        print("Test 1/5 Passed: No direct usage of 'Bonjour'.")
+        print("Test 1/6 Passed: No console.log used.")
     end
 
-    -- 2. Check if file exists
-    if file_exists("input.txt") then
-        print("Test 2/5 Passed: 'input.txt' exists.")
-    else
-        print("Test 2/5 Failed: 'input.txt' is missing.")
+    if contains_direct_bonjour(user_code) then
+        print("Test 2/6 Failed: Direct Bonjour usage not allowed unless used in fs.writeFileSync.")
         passed = false
+    else
+        print("Test 2/6 Passed: No direct Bonjour found.")
     end
 
-    -- 3. Check file content
-    local file_content = read_file("input.txt")
-    if normalize_string(file_content) == "Bonjour" then
-        print("Test 3/5 Passed: File content is correct.")
-    else
-        print("Test 3/5 Failed: File content is incorrect.")
+    if not contains_fs_usage(user_code) then
+        print("Test 3/6 Failed: fs module not required.")
         passed = false
+    else
+        print("Test 3/6 Passed: fs module required.")
     end
 
-    -- 4. Check user output
-    if normalize_string(user_output) == "Bonjour" then
-        print("Test 4/5 Passed: Output is correct.")
-    else
-        print("Test 4/5 Failed: Output does not match.")
+    if not creates_input_txt(user_code) then
+        print("Test 4/6 Failed: input.txt not created.")
         passed = false
+    else
+        print("Test 4/6 Passed: input.txt is created.")
     end
 
-    -- 5. Compare with expected output
-    if normalize_string(user_output) == normalize_string(expected_output_user) then
-        print("Test 5/5 Passed: Output matches expected result.")
+    if not reads_input_txt(user_code) then
+        print("Test 5/6 Failed: input.txt is not read.")
+        passed = false
     else
-        print("Test 5/5 Failed: Output does not match expected result.")
+        print("Test 5/6 Passed: input.txt is read.")
+    end
+
+    if output_correct(user_output, expected_output_user) then
+        print("Test 6/6 Passed: Output is correct.")
+    else
+        print("Test 6/6 Failed: Output is incorrect.")
         passed = false
     end
 
@@ -82,5 +75,5 @@ local function run_test(user_code, user_output, expected_output_user)
     end
 end
 
--- Execute the test
+-- Execution
 run_test(user_code, user_output, expected_output_user)
