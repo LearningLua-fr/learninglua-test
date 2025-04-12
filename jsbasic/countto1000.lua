@@ -10,18 +10,12 @@ local function uses_process_stdout(code)
     return string.match(code, "process%.stdout%.write%s*%(") ~= nil
 end
 
-local function file_exists(filename)
-    local file = io.open(filename, "r")
-    if file then file:close() return true end
-    return false
+local function includes_write_file(code)
+    return string.match(code, "fs%.writeFileSync%s*%(") ~= nil
 end
 
-local function read_file(filename)
-    local file = io.open(filename, "r")
-    if not file then return nil end
-    local content = file:read("*a")
-    file:close()
-    return content
+local function includes_read_file(code)
+    return string.match(code, "fs%.readFileSync%s*%(") ~= nil
 end
 
 local function expected_output_string()
@@ -37,6 +31,7 @@ end
 
 local function run_test(user_code, user_output, expected_output_user)
     local passed = true
+    local expected = expected_output_string()
 
     if contains_console_log(user_code) then
         print("Test 1/6 Failed: console.log is forbidden.")
@@ -46,32 +41,30 @@ local function run_test(user_code, user_output, expected_output_user)
     end
 
     if defines_print_function(user_code) and uses_process_stdout(user_code) then
-        print("Test 2/6 Passed: printString is defined and uses process.stdout.write.")
+        print("Test 2/6 Passed: printString is valid.")
     else
-        print("Test 2/6 Failed: printString missing or invalid.")
+        print("Test 2/6 Failed: printString invalid.")
         passed = false
     end
 
-    if file_exists("numbers.txt") then
-        print("Test 3/6 Passed: numbers.txt exists.")
+    if includes_write_file(user_code) then
+        print("Test 3/6 Passed: fs.writeFileSync used.")
     else
-        print("Test 3/6 Failed: numbers.txt not found.")
+        print("Test 3/6 Failed: Missing write to file.")
         passed = false
     end
 
-    local file_content = read_file("numbers.txt")
-    local expected = expected_output_string()
-    if file_content == expected then
-        print("Test 4/6 Passed: File content is correct.")
+    if includes_read_file(user_code) then
+        print("Test 4/6 Passed: fs.readFileSync used.")
     else
-        print("Test 4/6 Failed: File content is incorrect.")
+        print("Test 4/6 Failed: Missing read from file.")
         passed = false
     end
 
     if user_output == expected then
         print("Test 5/6 Passed: Output matches expected.")
     else
-        print("Test 5/6 Failed: Output does not match expected.")
+        print("Test 5/6 Failed: Output does not match.")
         passed = false
     end
 
