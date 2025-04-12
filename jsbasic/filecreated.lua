@@ -34,48 +34,53 @@ end
 local function run_test(user_code, user_output, expected_output_user)
     local passed = true
 
+    -- 1. Check for forbidden direct usage
     if contains_forbidden_output(user_code) then
-        print("❌ Test 1/5: Forbidden direct string 'Bonjour' used.")
+        print("Test 1/5 Failed: Direct usage of 'Bonjour' found in code.")
         passed = false
     else
-        print("✅ Test 1/5: No forbidden direct output detected.")
+        print("Test 1/5 Passed: No direct usage of 'Bonjour'.")
     end
 
+    -- 2. Check if file exists
     if file_exists("input.txt") then
-        print("✅ Test 2/5: 'input.txt' exists.")
+        print("Test 2/5 Passed: 'input.txt' exists.")
     else
-        print("❌ Test 2/5: 'input.txt' not found.")
+        print("Test 2/5 Failed: 'input.txt' is missing.")
         passed = false
     end
 
+    -- 3. Check file content
     local file_content = read_file("input.txt")
     if normalize_string(file_content) == "Bonjour" then
-        print("✅ Test 3/5: 'input.txt' contains 'Bonjour'.")
+        print("Test 3/5 Passed: File content is correct.")
     else
-        print("❌ Test 3/5: 'input.txt' content incorrect.")
+        print("Test 3/5 Failed: File content is incorrect.")
         passed = false
     end
 
+    -- 4. Check user output
     if normalize_string(user_output) == "Bonjour" then
-        print("✅ Test 4/5: Output is 'Bonjour'.")
+        print("Test 4/5 Passed: Output is correct.")
     else
-        print("❌ Test 4/5: Output mismatch.")
+        print("Test 4/5 Failed: Output does not match.")
         passed = false
     end
 
+    -- 5. Compare with expected output
     if normalize_string(user_output) == normalize_string(expected_output_user) then
-        print("✅ Test 5/5: Final output matches expected.")
+        print("Test 5/5 Passed: Output matches expected result.")
     else
-        print("❌ Test 5/5: Final output doesn't match expected.")
+        print("Test 5/5 Failed: Output does not match expected result.")
         passed = false
     end
 
     if passed then
-        print("🎉 All tests passed.")
+        print("All tests passed.")
     else
-        print("🔁 Some tests failed.")
+        print("Some tests failed.")
     end
 end
 
--- Appel du test
+-- Execute the test
 run_test(user_code, user_output, expected_output_user)
