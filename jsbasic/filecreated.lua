@@ -11,7 +11,7 @@ local function uses_fs_module(code)
 end
 
 local function checks_input_file(code)
-    return string.match(code, "input%.txt") ~= nil and string.match(code, "fs%.existsSync") ~= nil
+    return string.match(code, "input%.txt") ~= nil and string.match(code, "fs%.writeFileSync") ~= nil
 end
 
 local function reads_input_file(code)
