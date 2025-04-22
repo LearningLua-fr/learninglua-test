@@ -53,3 +53,5 @@ function run_test(user_code)
         print("Some tests failed")
     end
 end
+
+run_test(user_code) 
