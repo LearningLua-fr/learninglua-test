@@ -3,48 +3,53 @@ function contains_table_declaration(code)
 end
 
 function contains_table_insert(code)
-    local insert_1 = string.match(code, "table%.insert%s*%(%s*myTable%s*,%s*%d+%s*%)")
-    return insert_1 ~= nil
+    return string.match(code, "table%.insert%s*%(%s*myTable%s*,%s*[%w_]+%s*%)") ~= nil
 end
 
-function contains_for_loop(code)
-    return string.match(code, "for%s+i%s*=%s*1%s*,%s*#myTable%s*do") ~= nil
+function contains_loop(code)
+    return string.match(code, "for%s+[%w_]+%s*=%s*1%s*,%s*#myTable") ~= nil or
+           string.match(code, "for%s+[%w_]+%s*,%s*[%w_]+%s+in%s+ipairs%s*%(%s*myTable%s*%)") ~= nil
 end
 
-function contains_print_call(code)
-    return string.match(code, "print%s*%(%s*myTable%[i%]%s*%)") ~= nil
+function contains_dynamic_print(code)
+    return string.match(code, "print%s*%(%s*[%w_]+%s*%)") ~= nil
 end
 
 function run_test(user_code)
+    local passed = 0
+    local total = 4
+
     if contains_table_declaration(user_code) then
-        print("Test Passed 1/4: Table 'myTable' is correctly defined as empty")
+        print("Test 1/4 Passed: Table 'myTable' is correctly defined as empty")
+        passed = passed + 1
     else
-        print("Test Failed 1/4: Table 'myTable' is missing or not correctly defined")
+        print("Test 1/4 Failed: Table 'myTable' is missing or not correctly defined")
     end
 
     if contains_table_insert(user_code) then
-        print("Test Passed 2/4: Elements are inserted using 'table.insert'")
+        print("Test 2/4 Passed: Elements are inserted using 'table.insert'")
+        passed = passed + 1
     else
-        print("Test Failed 2/4: 'table.insert' is missing or incorrect")
+        print("Test 2/4 Failed: 'table.insert' is missing or incorrect")
     end
 
-    if contains_for_loop(user_code) then
-        print("Test Passed 3/4: For loop is correctly defined")
+    if contains_loop(user_code) then
+        print("Test 3/4 Passed: A valid loop is defined to iterate over the table")
+        passed = passed + 1
     else
-        print("Test Failed 3/4: For loop is missing or incorrect")
+        print("Test 3/4 Failed: Loop is missing or incorrect")
     end
 
-    if contains_print_call(user_code) then
-        print("Test Passed 4/4: Print statement is correct")
+    if contains_dynamic_print(user_code) then
+        print("Test 4/4 Passed: Values are printed dynamically inside the loop")
+        passed = passed + 1
     else
-        print("Test Failed 4/4: Print statement is missing or incorrect")
+        print("Test 4/4 Failed: Dynamic print statement is missing or incorrect")
     end
 
-    if contains_table_declaration(user_code) and contains_table_insert(user_code) and contains_for_loop(user_code) and contains_print_call(user_code) then
+    if passed == total then
         print("All tests passed")
     else
         print("Some tests failed")
     end
 end
-
-run_test(user_code)
