@@ -1,53 +1,69 @@
--- Vérifie que la fonction `IsPalindrome` est définie
 function contains_function_declaration(code)
-    return string.match(code, "function%s+IsPalindrome%s*%(%s*text%s*%)") ~= nil
+    return string.match(code, "function%s+IsPalindrome%s*%(%s*[%w_]+%s*%)") ~= nil
 end
 
--- Vérifie que le code de l'utilisateur contient une manipulation de chaîne (string.gsub, string.reverse, ou string.lower)
-function contains_string_manipulation(code)
-    return string.match(code, "string%.gsub") ~= nil or string.match(code, "string%.reverse") ~= nil or string.match(code, "string%.lower") ~= nil
+function contains_required_tests(code)
+    local has_radar     = string.match(code, "IsPalindrome%s*%(%s*['\"]radar['\"]%s*%)")
+    local has_plan      = string.match(code, "IsPalindrome%s*%(%s*['\"]A man, a plan, a canal, Panama['\"]%s*%)")
+    local has_hello     = string.match(code, "IsPalindrome%s*%(%s*['\"]hello['\"]%s*%)")
+    return has_radar and has_plan and has_hello
 end
 
--- Vérifie que la sortie de l'utilisateur correspond à la sortie attendue (sans espaces et caractères spéciaux)
-function check_output(user_output, expected_output)
-    -- Supprime les sauts de ligne, retours chariots et espaces des deux chaînes
-    local sanitized_user_output = string.gsub(user_output, "[\n\r%s]", "")
-    local sanitized_expected_output = string.gsub(expected_output, "[\n\r%s]", "")
-    return sanitized_user_output == sanitized_expected_output
+function contains_only_three_prints(code)
+    local count = 0
+    for _ in string.gmatch(code, "print%s*%(") do
+        count = count + 1
+    end
+    return count == 3
 end
 
--- Fonction principale de test
+function contains_hardcoded_output(code)
+    return string.match(code, 'print%s*%(%s*["\']true\\ntrue\\nfalse["\']%s*%)') ~= nil
+end
+
+local function trim(s)
+    return s:match("^%s*(.-)%s*$")
+end
+
 function run_test(user_code, user_output, expected_output_user)
-    local test_passed = 0
-    local total_tests = 2
-    local test_result = {}
+    local passed = 0
+    local total = 4
 
-    -- Test 1 : Vérifie la déclaration de la fonction
     if contains_function_declaration(user_code) then
-        table.insert(test_result, "Test Passed 1/3: The function `IsPalindrome` is correctly defined")
-        test_passed = test_passed + 1
+        print("Test 1/4 Passed: Function 'IsPalindrome' is correctly defined")
+        passed = passed + 1
     else
-        table.insert(test_result, "Test Failed 1/3: The function `IsPalindrome` is not defined")
+        print("Test 1/4 Failed: Function 'IsPalindrome' is missing or incorrect")
     end
 
-    -- Test 2 : Vérifie qu'une manipulation de chaîne est utilisée
-    if contains_string_manipulation(user_code) then
-        table.insert(test_result, "Test Passed 2/3: String manipulation is used in the function")
-        test_passed = test_passed + 1
+    if contains_required_tests(user_code) then
+        print("Test 2/4 Passed: Required test cases are present")
+        passed = passed + 1
     else
-        table.insert(test_result, "Test Failed 2/3: The function `IsPalindrome` does not contain any string manipulation")
+        print("Test 2/4 Failed: Missing one or more required test cases")
     end
 
-    -- Résumé final
-    if test_passed == total_tests then
-        table.insert(test_result, "All tests passed")
+    if contains_only_three_prints(user_code) and not contains_hardcoded_output(user_code) then
+        print("Test 3/4 Passed: Output is not hardcoded and print count is valid")
+        passed = passed + 1
     else
-        table.insert(test_result, string.format("%d/%d tests passed", test_passed, total_tests))
+        print("Test 3/4 Failed: Output is hardcoded or too many print() calls")
     end
 
-    -- Affiche le résultat consolidé
-    return table.concat(test_result, "\n")
+    if trim(user_output) == trim(expected_output_user) then
+        print("Test 4/4 Passed: Output is correct")
+        passed = passed + 1
+    else
+        print(string.format("Test 4/4 Failed: Expected '%s', but got '%s'", expected_output_user, user_output))
+    end
+
+    if passed == total then
+        print("All tests passed")
+    else
+        print("Some tests failed")
+    end
 end
+
 
 
 print(run_test(user_code, user_output, expected_output_user))
