@@ -12,8 +12,12 @@ function uses_for_loop(code)
 end
 
 function contains_valid_logic(code)
-    -- True if either string.upper is used, or a manual loop (via string.sub and for)
     return uses_string_upper(code) or uses_for_loop(code)
+end
+
+-- Trim leading/trailing whitespace (including \n and \r)
+local function trim(s)
+    return s:match("^%s*(.-)%s*$")
 end
 
 function run_test(user_code, user_output, expected_output_user)
@@ -34,11 +38,14 @@ function run_test(user_code, user_output, expected_output_user)
         print("Test 2/3 Failed: No valid logic detected (missing string.upper or loop)")
     end
 
-    if user_output == expected_output_user then
+    local trimmed_user_output = trim(user_output)
+    local trimmed_expected_output = trim(expected_output_user)
+
+    if trimmed_user_output == trimmed_expected_output then
         print("Test 3/3 Passed: Output is correct")
         passed = passed + 1
     else
-        print(string.format("Test 3/3 Failed: Expected '%s', but got '%s'", expected_output_user, user_output))
+        print(string.format("Test 3/3 Failed: Expected '%s', but got '%s'", trimmed_expected_output, trimmed_user_output))
     end
 
     if passed == total then
@@ -47,4 +54,5 @@ function run_test(user_code, user_output, expected_output_user)
         print("Some tests failed")
     end
 end
+
 run_test(user_code, user_output, expected_output_user)
