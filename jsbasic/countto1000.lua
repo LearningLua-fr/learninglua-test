@@ -15,7 +15,7 @@ local function includes_write_file(code)
 end
 
 local function includes_read_file(code)
-    return string.match(code, "fs%.readFileSync%s*%(") ~= nil
+    return string.match(code, "fs%.readFileSync%s*%(") ~= nil or string.match(code, "fs%.readFile%s*%(") ~= nil
 end
 
 local function expected_output_string()
@@ -55,7 +55,7 @@ local function run_test(user_code, user_output, expected_output_user)
     end
 
     if includes_read_file(user_code) then
-        print("Test 4/6 Passed: fs.readFileSync used.")
+        print("Test 4/6 Passed: fs.readFile or fs.readFileSync used.")
     else
         print("Test 4/6 Failed: Missing read from file.")
         passed = false
