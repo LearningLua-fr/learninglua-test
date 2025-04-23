@@ -10,14 +10,19 @@ function calls_function(code)
     return string.match(code, "FilterEvenNumbers%s*%(%s*{") ~= nil
 end
 
-function contains_single_print(code)
-    local count = 0
-    for _ in code:gmatch("print%s*%(") do count = count + 1 end
-    return count == 1
+function contains_single_output_call(code)
+    local print_count = 0
+    for _ in code:gmatch("print%s*%(") do print_count = print_count + 1 end
+
+    local write_count = 0
+    for _ in code:gmatch("io.write%s*%(") do write_count = write_count + 1 end
+
+    return (print_count + write_count) == 1
 end
 
 function contains_hardcoded_output(code)
-    return string.match(code, 'print%s*%(%s*["\']?2%s+4%s+6["\']?%s*%)') ~= nil
+    return string.match(code, 'print%s*%(%s*["\']?2%s+4%s+6["\']?%s*%)')
+        or string.match(code, 'io.write%s*%(%s*["\']?2%s+4%s+6["\']?%s*%)')
 end
 
 function output_is_correct(user_output)
@@ -57,11 +62,11 @@ function run_test(user_code, user_output, expected_output_user)
         print("Test 3/5 Failed: Function is not called")
     end
 
-    if contains_single_print(user_code) and not contains_hardcoded_output(user_code) then
-        print("Test 4/5 Passed: Output is not hardcoded and printed once")
+    if contains_single_output_call(user_code) and not contains_hardcoded_output(user_code) then
+        print("Test 4/5 Passed: Output is not hardcoded and exactly one print/io.write is used")
         passed = passed + 1
     else
-        print("Test 4/5 Failed: Output is hardcoded or incorrect number of prints")
+        print("Test 4/5 Failed: Output is hardcoded or too many output calls")
     end
 
     local lines = split_lines(user_output)
@@ -78,4 +83,5 @@ function run_test(user_code, user_output, expected_output_user)
         print("Some tests failed")
     end
 end
+
 run_test(user_code, user_output, expected_output_user)
