@@ -22,8 +22,12 @@ function contains_hardcoded_hello(code)
     return string.match(code, 'print%s*%(%s*["\']Hello, my name is Alice["\']%s*%)') ~= nil
 end
 
-local function trim(s)
-    return s:match("^%s*(.-)%s*$")
+function split_lines(s)
+    local lines = {}
+    for line in s:gmatch("[^\r\n]+") do
+        table.insert(lines, line:match("^%s*(.-)%s*$")) -- trim each line
+    end
+    return lines
 end
 
 function run_test(user_code, user_output, expected_output_user)
@@ -65,7 +69,18 @@ function run_test(user_code, user_output, expected_output_user)
         print("Test 5/6 Failed: Method 'sayHello()' is not called")
     end
 
-    if not contains_hardcoded_hello(user_code) and trim(user_output) == trim(expected_output_user) then
+    local user_lines = split_lines(user_output)
+    local expected_lines = split_lines(expected_output_user)
+
+    local output_match = #user_lines == #expected_lines
+    for i = 1, #expected_lines do
+        if (user_lines[i] or "") ~= (expected_lines[i] or "") then
+            output_match = false
+            break
+        end
+    end
+
+    if not contains_hardcoded_hello(user_code) and output_match then
         print("Test 6/6 Passed: Output is correct and not hardcoded")
         passed = passed + 1
     else
