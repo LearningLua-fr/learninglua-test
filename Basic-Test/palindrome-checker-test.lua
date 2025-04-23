@@ -24,7 +24,7 @@ end
 function split_lines(s)
     local lines = {}
     for line in s:gmatch("[^\r\n]+") do
-        table.insert(lines, line:match("^%s*(.-)%s*$")) 
+        table.insert(lines, line:match("^%s*(.-)%s*$")) -- trim chaque ligne
     end
     return lines
 end
@@ -59,7 +59,7 @@ function run_test(user_code, user_output, expected_output_user)
 
     local output_match = #user_lines == #expected_lines
     for i = 1, #expected_lines do
-        if user_lines[i] ~= expected_lines[i] then
+        if (user_lines[i] or "") ~= (expected_lines[i] or "") then
             output_match = false
             break
         end
@@ -78,6 +78,5 @@ function run_test(user_code, user_output, expected_output_user)
         print("Some tests failed")
     end
 end
-
 
 run_test(user_code, user_output, expected_output_user)
