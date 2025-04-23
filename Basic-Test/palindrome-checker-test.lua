@@ -69,7 +69,7 @@ function run_test(user_code, user_output, expected_output_user)
         print("Test 4/4 Passed: Output is correct")
         passed = passed + 1
     else
-        print(string.format("Test 4/4 Failed: Expected '%s', but got '%s'", expected_output_user, user_output))
+        print(string.format("Test 4/4 Failed: Expected '%s'", user_output))
     end
 
     if passed == total then
