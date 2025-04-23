@@ -1,64 +1,62 @@
- -- Vérifie que la fonction `ExtractLicense` est définie
 function contains_function_declaration(code)
-    return string.match(code, "function%s+ExtractLicense%s*%(%s*licenseStr%s*%)") ~= nil
+    return string.match(code, "function%s+ExtractLicense%s*%(%s*[%w_]+%s*%)") ~= nil
 end
 
--- Vérifie que le code de l'utilisateur contient une manipulation de chaîne (string.gsub ou string.sub)
-function contains_string_manipulation(code)
-    return string.match(code, "string%.gsub") ~= nil or string.match(code, "string%.sub") ~= nil
+function contains_single_print(code)
+    local count = 0
+    for _ in string.gmatch(code, "print%s*%(") do
+        count = count + 1
+    end
+    return count == 1
 end
 
-function check_output(user_output, expected_output)
-    -- Supprime les sauts de ligne, retours chariots et espaces des deux chaînes
-    local sanitized_user_output = string.gsub(user_output, "[\n\r%s]", "")
-    local sanitized_expected_output = string.gsub(expected_output, "[\n\r%s]", "")
-    return sanitized_user_output == sanitized_expected_output
+function contains_hardcoded_output(code, expected_output)
+    local pattern = 'print%s*%(%s*["\']' .. expected_output .. '["\']%s*%)'
+    return string.match(code, pattern) ~= nil
 end
 
+local function trim(s)
+    return s:match("^%s*(.-)%s*$")
+end
 
-
--- Fonction principale de test
 function run_test(user_code, user_output, expected_output_user)
-    local test_passed = 0
-    local total_tests = 3
-    local test_result = {}
+    local passed = 0
+    local total = 4
 
-    -- Test 1 : Vérifie la déclaration de la fonction
     if contains_function_declaration(user_code) then
-        table.insert(test_result, "Test Passed 1/3: The function `ExtractLicense` is correctly defined")
-        test_passed = test_passed + 1
+        print("Test 1/4 Passed: Function 'ExtractLicense' is correctly defined")
+        passed = passed + 1
     else
-        table.insert(test_result, "Test Failed 1/3: The function `ExtractLicense` is not defined")
+        print("Test 1/4 Failed: Function 'ExtractLicense' is missing or incorrect")
     end
 
-    -- Test 2 : Vérifie qu'une manipulation de chaîne est utilisée
-    if contains_string_manipulation(user_code) then
-        table.insert(test_result, "Test Passed 2/3: String manipulation is used in the function")
-        test_passed = test_passed + 1
+    if contains_single_print(user_code) then
+        print("Test 2/4 Passed: Only one print() statement detected")
+        passed = passed + 1
     else
-        table.insert(test_result, "Test Failed 2/3: The function `ExtractLicense` does not contain any string manipulation")
+        print("Test 2/4 Failed: Too many print() calls (only one allowed)")
     end
 
-    -- Test 3 : Vérifie la sortie attendue de la fonction
-    if check_output(user_output, expected_output_user) then
-        table.insert(test_result, "Test Passed 3/3: The Expected output is correct")
-        test_passed = test_passed + 1
+    if not contains_hardcoded_output(user_code, expected_output_user) then
+        print("Test 3/4 Passed: Output is not hardcoded")
+        passed = passed + 1
     else
-        print(user_output)
-        print(expected_output_user)
-        table.insert(test_result, "Test Failed 3/3: The Expected output is not correct")
+        print("Test 3/4 Failed: Output is hardcoded directly in print()")
     end
 
-    -- Résumé final
-    if test_passed == total_tests then
-        table.insert(test_result, "All tests passed")
+    if trim(user_output) == trim(expected_output_user) then
+        print("Test 4/4 Passed: Output is correct")
+        passed = passed + 1
     else
-        table.insert(test_result, string.format("%d/%d tests passed", test_passed, total_tests))
+        print(string.format("Test 4/4 Failed: Expected '%s', but got '%s'", expected_output_user, user_output))
     end
 
-    -- Affiche le résultat consolidé
-    return table.concat(test_result, "\n")
+    if passed == total then
+        print("All tests passed")
+    else
+        print("Some tests failed")
+    end
 end
 
 
-print(run_test(user_code, user_output, expected_output_user))
+run_test(user_code, user_output, expected_output_user)
