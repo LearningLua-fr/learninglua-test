@@ -21,8 +21,12 @@ function contains_hardcoded_output(code)
     return string.match(code, 'print%s*%(%s*["\']true\\ntrue\\nfalse["\']%s*%)') ~= nil
 end
 
-local function trim(s)
-    return s:match("^%s*(.-)%s*$")
+function split_lines(s)
+    local lines = {}
+    for line in s:gmatch("[^\r\n]+") do
+        table.insert(lines, line:match("^%s*(.-)%s*$")) 
+    end
+    return lines
 end
 
 function run_test(user_code, user_output, expected_output_user)
@@ -50,7 +54,18 @@ function run_test(user_code, user_output, expected_output_user)
         print("Test 3/4 Failed: Output is hardcoded or too many print() calls")
     end
 
-    if trim(user_output) == trim(expected_output_user) then
+    local user_lines = split_lines(user_output)
+    local expected_lines = split_lines(expected_output_user)
+
+    local output_match = #user_lines == #expected_lines
+    for i = 1, #expected_lines do
+        if user_lines[i] ~= expected_lines[i] then
+            output_match = false
+            break
+        end
+    end
+
+    if output_match then
         print("Test 4/4 Passed: Output is correct")
         passed = passed + 1
     else
@@ -65,5 +80,4 @@ function run_test(user_code, user_output, expected_output_user)
 end
 
 
-
-print(run_test(user_code, user_output, expected_output_user))
+run_test(user_code, user_output, expected_output_user)
